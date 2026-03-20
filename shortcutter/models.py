@@ -6,7 +6,7 @@ from uuid import uuid4
 class ShortURLModel(models.Model):
     uuid = models.UUIDField(default=uuid4())
     full_url = models.URLField()
-    short_url = models.URLField(unique=True)
+    short_code = models.URLField(unique=True)
 
     class Meta:
         verbose_name = "Short URL"

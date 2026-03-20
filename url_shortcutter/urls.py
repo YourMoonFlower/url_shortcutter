@@ -23,11 +23,13 @@ from drf_spectacular.views import (
     SpectacularSwaggerView,
 )
 
+from shortcutter.views import get_redirect_url
 from shortcutter.urls import urlpatterns as api_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(api_urlpatterns)),
+    path("<str:short_code>", get_redirect_url, name="redirect"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "swagger/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"
