@@ -6,8 +6,8 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .models import ShortURLModel
+from .schemas import ShortURLSchema
 from .serializers import ShortURLSerializers, ShortURLListSerializers
-from .utils import get_short_code
 
 
 class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
@@ -20,10 +20,9 @@ class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
             return ShortURLListSerializers
         return ShortURLSerializers
 
+    @extend_schema(request=ShortURLSchema())
     def create(self, request, *args, **kwargs):
-        short_url_data = request.data
-        short_url_data.update({"short_code": get_short_code()})
-        serializer = self.get_serializer(data=short_url_data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
