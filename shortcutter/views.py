@@ -7,14 +7,10 @@ from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.response import Response
 from rest_framework import status
 
-from url_shortcutter.settings import DOMAIN_NAME
-
 from .models import ShortURLModel
 from .schemas import ShortURLSchema
 from .serializers import ShortURLSerializers, ShortURLListSerializers
 from .tasks import scrapy_click_data
-from .utils import get_short_code
-
 
 
 class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
@@ -42,9 +38,9 @@ class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
 def get_redirect_url(request, short_code: str):
     obj = get_object_or_404(ShortURLModel, short_code=short_code)
     scrapy_data = {
-        "client_api": request.client_ip,
+        "client_ip": request.client_ip,
         "clicked_at": datetime.now(),
-        "short_url": DOMAIN_NAME + obj.short_code,
+        "short_code": obj.short_code,
         "user_agent": request.headers.get("user_agent"),
     }
     scrapy_click_data.delay(scrapy_data)
