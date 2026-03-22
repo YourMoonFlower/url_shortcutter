@@ -58,6 +58,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "url_shortcutter.middleware.RequestIPMiddleware",
 ]
 
 ROOT_URLCONF = "url_shortcutter.urls"
@@ -147,3 +148,5 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+GEO_API = getenv("GEO_API")
