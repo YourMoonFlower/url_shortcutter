@@ -5,7 +5,7 @@ from celery import shared_task
 
 from url_shortcutter.settings import GEO_API
 
-from .models import ClickModel
+from .models import ClickModel, ShortURLModel
 
 logger = logging.getLogger("")
 
@@ -18,13 +18,19 @@ def scrapy_click_data(data: dict):
     except Exception as e:
         logger.error(f"Error with getting data from geo_api: {str(e)}")
 
+    try:
+        short_url = ShortURLModel.objects.get(short_code=data.get("short_code"))
+    except ShortURLModel.DoesNotExist:
+        logger.error("short_url does not exist")
+        raise
+
     if not response.ok:
         logger.error(f"Error with getting data from geo_api: {response.text}")
 
     country = response.json().get("country")
     ClickModel.objects.create(
-        clicked_at=data.get("clicked_at"),
-        short_url=data.get("short_url"),
+        click_at=data.get("clicked_at"),
+        short_url=short_url,
         user_agent=data.get("user_agent"),
         country=country,
     )
