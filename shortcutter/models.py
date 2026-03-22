@@ -2,11 +2,13 @@ from django.db import models
 
 from uuid import uuid4
 
+from .utils import get_short_code
+
 
 class ShortURLModel(models.Model):
     uuid = models.UUIDField(default=uuid4())
     full_url = models.URLField()
-    short_code = models.URLField(unique=True)
+    short_code = models.CharField(max_length=6, unique=True, default=get_short_code())
 
     class Meta:
         verbose_name = "Short URL"
