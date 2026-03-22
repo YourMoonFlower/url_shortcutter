@@ -16,9 +16,8 @@ class ShortURLModel(models.Model):
 
 
 class ClickModel(models.Model):
-    click_at = models.DateTimeField(auto_now_add=True)
+    click_at = models.DateTimeField()
     short_url = models.ForeignKey(to=ShortURLModel, on_delete=models.CASCADE)
-    ip_address = models.GenericIPAddressField()
     user_agent = models.TextField()
     country = models.CharField(max_length=200, null=True)
 
