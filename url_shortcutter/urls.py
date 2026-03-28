@@ -24,11 +24,13 @@ from drf_spectacular.views import (
 )
 
 from shortcutter.views import get_redirect_url
-from shortcutter.urls import urlpatterns as api_urlpatterns
+from shortcutter.urls import urlpatterns as shortcutter_urlpatterns
+from users.urls import urlpatterns as users_urlpatterns
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include(api_urlpatterns)),
+    path("shortcutter/", include(shortcutter_urlpatterns)),
+    path("users/", include(users_urlpatterns)),
     path("<str:short_code>", get_redirect_url, name="redirect"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
