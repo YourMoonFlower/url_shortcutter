@@ -3,6 +3,7 @@ from datetime import datetime
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import AnonymousUser
 from drf_spectacular.utils import extend_schema
+from rest_framework import permissions
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.response import Response
@@ -10,7 +11,7 @@ from rest_framework import status
 
 from .models import ShortURLModel
 from .schemas import ShortURLSchema
-from .serializers import ShortURLSerializers, ShortURLListSerializers
+from .serializers import ShortURLSerializers
 from .tasks import scrapy_click_data
 
 
@@ -19,16 +20,16 @@ class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     serializer_class = ShortURLSerializers
     queryset = ShortURLModel.objects.all()
 
-    def get_serializer_class(self):
-        if self.action == "list":
-            return ShortURLListSerializers
-        return ShortURLSerializers
+    def get_permissions(self):
+        if self.action == "create":
+            return [permissions.AllowAny()]
+        return super().get_permissions()
 
     @extend_schema(request=ShortURLSchema())
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if request.user is not AnonymousUser:
+        if type(request.user) is not AnonymousUser:
             kwargs["author"] = request.user
         self.perform_create(serializer, **kwargs)
         headers = self.get_success_headers(serializer.data)

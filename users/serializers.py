@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from url_shortcutter.settings import SIMPLE_JWT
 from shortcutter.models import ShortURLModel
-from shortcutter.serializers import ShortURLListSerializers
+from shortcutter.serializers import ShortURLSerializers
 
 from .models import User
 
@@ -14,11 +14,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = "__all__"
+        exclude = ["groups", "user_permissions"]
 
     def get_short_urls(self, obj):
         short_url_list_by_user = ShortURLModel.objects.filter(author=obj)
-        return ShortURLListSerializers(short_url_list_by_user, many=True).data
+        return ShortURLSerializers(short_url_list_by_user, many=True).data
 
 
 class RegistrationUserSerializer(serializers.ModelSerializer):
