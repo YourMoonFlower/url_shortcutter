@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.models import AnonymousUser
 from drf_spectacular.utils import extend_schema
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -27,11 +28,28 @@ class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        if request.user is not AnonymousUser:
+            kwargs["author"] = request.user
+        self.perform_create(serializer, **kwargs)
         headers = self.get_success_headers(serializer.data)
         return Response(
             serializer.data, status=status.HTTP_201_CREATED, headers=headers
         )
+
+    def perform_create(self, serializer, **kwargs):
+        obj = serializer.save(**kwargs)
+        return obj
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset().filter(author__uuid=request.user.uuid)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 @extend_schema(methods=["GET"])
