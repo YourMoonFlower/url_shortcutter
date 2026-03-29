@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -26,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-s5z@7j6f_voz6!w651qo$10y2o_4f4rgcp-4&uo(a*2&7k3_95"
+SECRET_KEY = getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = getenv("DEBUG")
 
 ALLOWED_HOSTS = []
 
@@ -130,8 +129,8 @@ USE_I18N = True
 
 USE_TZ = True
 
-CELERY_BROKER_URL = "redis://localhost:6379"
-CELERY_RESULT_BACKEND = "redis://localhost:6379"
+CELERY_BROKER_URL = getenv("REDIS_URL")
+CELERY_RESULT_BACKEND = getenv("REDIS_URL")
 
 
 # Static files (CSS, JavaScript, Images)
@@ -155,8 +154,8 @@ AUTH_USER_MODEL = "users.User"
 SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=60),
+    "ACCESS_TOKEN_LIFETIME": getenv("ACCESS_TOKEN_LIFETIME"),
+    "REFRESH_TOKEN_LIFETIME": getenv("REFRESH_TOKEN_LIFETIME"),
     "USER_ID_FIELD": "uuid",
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
