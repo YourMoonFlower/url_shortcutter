@@ -4,14 +4,16 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import AnonymousUser
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
+from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import ShortURLModel
-from .schemas import ShortURLSchema
+from .models import ShortURLModel, ClickModel
+from .schemas import ShortURLSchema, ClickModelGeneralStatisticsResponse
 from .serializers import ShortURLSerializers
+from .services import ClickServices
 from .tasks import scrapy_click_data
 
 
@@ -51,6 +53,18 @@ class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class ClickViewSet(GenericViewSet):
+    queryset = ClickModel.objects.all()
+
+    @extend_schema(responses=ClickModelGeneralStatisticsResponse)
+    @action(methods=["GET"], url_path="get_genetal_statistics", detail=False)
+    def get_general_statistics(self, request, *args, **kwargs):
+        user_uuid = request.user.uuid
+        data = ClickServices.get_general_statistics(user_uuid=user_uuid)
+        serializer = ClickModelGeneralStatisticsResponse(data)
+        return Response(data=serializer.data)
 
 
 @extend_schema(methods=["GET"])

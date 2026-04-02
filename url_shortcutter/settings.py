@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -154,8 +155,8 @@ AUTH_USER_MODEL = "users.User"
 SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "ACCESS_TOKEN_LIFETIME": getenv("ACCESS_TOKEN_LIFETIME"),
-    "REFRESH_TOKEN_LIFETIME": getenv("REFRESH_TOKEN_LIFETIME"),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=int(getenv("ACCESS_TOKEN_LIFETIME"))),
+    "REFRESH_TOKEN_LIFETIME": timedelta(minutes=int(getenv("REFRESH_TOKEN_LIFETIME"))),
     "USER_ID_FIELD": "uuid",
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
