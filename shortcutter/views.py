@@ -1,7 +1,9 @@
+import hashlib
 from datetime import datetime
 
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.models import AnonymousUser
+from django.core.cache import cache
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
 from rest_framework.decorators import action
@@ -69,12 +71,19 @@ class ClickViewSet(GenericViewSet):
 
 @extend_schema(methods=["GET"])
 def get_redirect_url(request, short_code: str):
-    obj = get_object_or_404(ShortURLModel, short_code=short_code)
+    cache_key = hashlib.sha256(short_code.encode("utf-8")).hexdigest()
+    full_url = cache.get(cache_key)
+    if not full_url:
+        obj = get_object_or_404(ShortURLModel, short_code=short_code)
+        full_url = obj.full_url
+        cache.add(key=cache_key, value=full_url)
+
     scrapy_data = {
         "client_ip": request.client_ip,
         "clicked_at": datetime.now(),
-        "short_code": obj.short_code,
+        "short_code": short_code,
         "user_agent": request.headers.get("user_agent"),
     }
     scrapy_click_data.delay(scrapy_data)
-    return redirect(to=obj.full_url, permanent=False, preserve_request=False)
+
+    return redirect(to=full_url, permanent=False, preserve_request=False)

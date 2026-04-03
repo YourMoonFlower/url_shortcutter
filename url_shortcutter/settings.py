@@ -150,6 +150,14 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": getenv("REDIS_URL"),
+        "TIMEOUT": getenv("REDIS_TTL", "3600"),
+    }
+}
+
 AUTH_USER_MODEL = "users.User"
 
 SIMPLE_JWT = {
