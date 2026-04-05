@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 class ShortURLSchema(serializers.Serializer):
     full_url = serializers.URLField()
+    alias = serializers.CharField(required=False, max_length=10)
 
 
 class CountUsersFromCountries(serializers.Serializer):

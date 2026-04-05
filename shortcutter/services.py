@@ -1,6 +1,8 @@
 from django.db.models import Count
 
+from .exceptions import BadRequest
 from .models import ClickModel, ShortURLModel
+from .utils import get_short_code
 
 
 class ClickServices:
@@ -45,3 +47,23 @@ class ClickServices:
             "most_popular_user_agent": most_popular_user_agent,
             "rating_country": rating_country,
         }
+
+
+class ShortURLServices:
+    @classmethod
+    def create_short_url(cls, data: dict) -> ShortURLModel:
+        short_code = data.get("alias", get_short_code())
+        data.pop("alias", None)
+        obj = ShortURLModel.objects.create(short_code=short_code, **data)
+        return obj
+
+    @classmethod
+    def get_full_url(cls, short_code: str) -> str:
+        try:
+            obj = ShortURLModel.objects.get(short_code=short_code)
+        except ShortURLModel.DoesNotExist:
+            raise BadRequest(
+                detail=f"Doesn't exist short_url with short_code={short_code}"
+            )
+
+        return obj.full_url

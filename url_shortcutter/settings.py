@@ -179,4 +179,38 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
 }
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+            "style": "{",
+        },
+        "simple": {
+            "format": "{levelname} {asctime} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "Console_Logging": {
+            "level": getenv("LOG_LEVEL", "DEBUG"),
+            "class": "logging.StreamHandler",
+        },
+        "File_Logging": {
+            "level": getenv("LOG_LEVEL", "DEBUG"),
+            "class": "logging.FileHandler",
+            "filename": getenv("LOG_FILE"),
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["Console_Logging", "File_Logging"],
+            "level": getenv("LOG_LEVEL", "DEBUG"),
+            "propagate": True,
+        },
+    },
+}
+
 GEO_API = getenv("GEO_API")
