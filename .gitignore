@@ -7,3 +7,6 @@
 *.pyc
 
 .vscode
+
+logs
+./logs
