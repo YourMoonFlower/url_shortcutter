@@ -26,6 +26,13 @@ class RegistrationUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ["username", "first_name", "last_name", "password", "email"]
 
+    def create(self, data: dict) -> User:
+        password = data.pop("password")
+        user = super().create(data)
+        user.set_password(password)
+        user.save()
+        return user
+
 
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255, trim_whitespace=False)

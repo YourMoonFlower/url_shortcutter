@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate
 from drf_spectacular.utils import extend_schema
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.mixins import RetrieveModelMixin
@@ -53,9 +54,11 @@ class LoginViewSet(GenericViewSet, AuthenticationMixin):
         password = serializer.validated_data["password"]
 
         try:
-            user = User.objects.get(username=username, password=password)
+            user = User.objects.get(username=username)
         except User.DoesNotExist:
-            raise ValidationError(detail={"err": "wrong password or username"})
+            raise ValidationError(detail={"err": "user does not exist"})
+        if not authenticate(username=username, password=password):
+            raise ValidationError(detail={"err": "wrong password"})
 
         data = self.for_user(user)
 
