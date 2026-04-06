@@ -5,6 +5,7 @@ from datetime import datetime
 from django.shortcuts import redirect
 from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
+from django.db.utils import IntegrityError
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
 from rest_framework.decorators import action
@@ -16,6 +17,7 @@ from redis.exceptions import ConnectionError
 
 from shortcutter.tasks import scrapy_click_data, add_task_to_celery
 
+from .exceptions import BadRequest
 from .models import ShortURLModel, ClickModel
 from .schemas import ShortURLSchema, ClickModelGeneralStatisticsResponse
 from .serializers import ShortURLSerializers
@@ -41,7 +43,10 @@ class ShortURLViewSet(GenericViewSet, CreateModelMixin, ListModelMixin):
         data = serializer.validated_data
         if type(request.user) is not AnonymousUser:
             data["author"] = request.user
-        response = ShortURLSerializers(ShortURLServices.create_short_url(data))
+        try:
+            response = ShortURLSerializers(ShortURLServices.create_short_url(data))
+        except IntegrityError:
+            raise BadRequest(detail="alias already is existed")
         return Response(response.data, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):

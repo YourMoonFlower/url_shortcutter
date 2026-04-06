@@ -3,8 +3,8 @@ import pytest
 
 from rest_framework.test import APIClient
 
-from .models import ShortURLModel
-from .utils import get_short_code
+from shortcutter.models import ShortURLModel
+from shortcutter.utils import get_short_code
 from users.models import User
 
 fake = faker.Faker()
@@ -73,6 +73,52 @@ def test_create_anonymous_short_url_with_alias(api_client_anonymous: APIClient):
     assert response.data["full_url"] == data_for_creating["full_url"]
     assert response.data["short_code"] == data_for_creating["alias"]
     assert response.data["author"] is None
+
+
+@pytest.mark.django_db
+def test_create_anonymous_short_url_with_existing_alias(
+    api_client_anonymous: APIClient,
+):
+    """
+    Test for creation anonymous short_url with existing custom alias
+
+    Args:
+        api_client (APIClient): The object for API imitation
+
+    Returns:
+        None
+    """
+    full_url = fake.url()
+    alias = "test"
+    ShortURLModel.objects.get_or_create(full_url=full_url, short_code=alias)
+
+    data_for_creating = {"full_url": full_url, "alias": "test"}
+    path = "/shortcutter/short_url/"
+
+    response = api_client_anonymous.post(path=path, data=data_for_creating)
+
+    assert response.status_code == 400
+
+
+@pytest.mark.django_db
+def test_create_anonymous_short_url_with_wrong_url(api_client_anonymous: APIClient):
+    """
+    Test for creation anonymous short_url with existing custom alias
+
+    Args:
+        api_client (APIClient): The object for API imitation
+
+    Returns:
+        None
+    """
+    full_url = "url"
+
+    data_for_creating = {"full_url": full_url}
+    path = "/shortcutter/short_url/"
+
+    response = api_client_anonymous.post(path=path, data=data_for_creating)
+
+    assert response.status_code == 400
 
 
 @pytest.mark.django_db
